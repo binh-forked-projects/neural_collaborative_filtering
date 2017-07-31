@@ -15,7 +15,7 @@ from time import time
 import sys
 import NeuMF
 
-model_file = "Pretrain/ml-1m_NeuMF_64_neg_4_hr_0.7301_ndcg_0.4465.h5"
+model_file = "pretrain/ml-1m_NeuMF_64_neg_4_hr_0.7301_ndcg_0.4465.h5"
 dataset_name = "ml-1m"
 mf_dim = 64
 layers = [512,256,128,64]
@@ -25,10 +25,10 @@ reg_mf = 0
 
 # Loading data
 t1 = time()
-dataset = Dataset("Data/"+dataset_name)
+dataset = Dataset("data/"+dataset_name)
 train, testRatings, testNegatives = dataset.trainMatrix, dataset.testRatings, dataset.testNegatives
 num_users, num_items = train.shape
-print("Load data done [%.1f s]. #user=%d, #item=%d, #train=%d, #test=%d" 
+print("Load data done [%.1f s]. #user=%d, #item=%d, #train=%d, #test=%d"
       %(time()-t1, num_users, num_items, train.nnz, len(testRatings)))
 
 # Get model
