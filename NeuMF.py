@@ -126,7 +126,7 @@ if __name__ == '__main__':
     weight_negatives = 1.0
     learner = "Adam"
     learning_rate = 0.001
-    num_epochs = 100
+    num_epochs = 2
     batch_size = 256
     verbose = 1
     enable_dropout = False
