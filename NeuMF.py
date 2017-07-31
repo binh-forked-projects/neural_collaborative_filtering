@@ -99,8 +99,10 @@ def load_pretrain_model(model, gmf_model, mlp_model, num_layers):
     return model
 
 def get_train_instances(train, num_negatives, weight_negatives, user_weights):
+    start_t = time.time()
     user_input, item_input, labels, weights = [],[],[],[]
     num_users = train.shape[0]
+    print("users:", num_users, "items:", num_items)
     for (u, i) in train.keys():
         # positive instance
         user_input.append(u)
@@ -116,6 +118,7 @@ def get_train_instances(train, num_negatives, weight_negatives, user_weights):
             item_input.append(j)
             labels.append(0)
             weights.append(weight_negatives * user_weights[u])
+    _write_elapsed_time(start_t, "{} train instances obtained:".format(len(user_input)))
     return user_input, item_input, labels, weights
 
 if __name__ == '__main__':
@@ -204,10 +207,7 @@ if __name__ == '__main__':
     for epoch in xrange(num_epochs):
         t1 = time.time()
         # Generate training instances
-        start_t = time.time()
-        print("Obtaining train instances ...")
         user_input, item_input, labels, weights = get_train_instances(train, num_negatives, weight_negatives, user_weights)
-        start_t = _write_elapsed_time(start_t, "Train instanced obtained:")
 
         # Training
         hist = model.fit([np.array(user_input), np.array(item_input)], #input
