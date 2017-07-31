@@ -211,7 +211,7 @@ if __name__ == '__main__':
     for epoch in xrange(num_epochs):
         t1 = time()
         # Generate training instances
-        start_t = time.time()
+        start_t = time()
         print("Obtaining train instances ...")
         user_input, item_input, labels, weights = get_train_instances(train, num_negatives, weight_negatives, user_weights)
         start_t = _write_elapsed_time(start_t, "Train instanced obtained:")
