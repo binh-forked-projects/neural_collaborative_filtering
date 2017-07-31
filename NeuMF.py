@@ -21,6 +21,15 @@ from time import time
 import sys
 import GMFlogistic, MLPlogistic
 
+
+def _write_elapsed_time(start_t, msg=None):
+    cur_time = time.time()
+    elapsed_time = time.strftime("%H:%M:%S",
+                                 time.gmtime(cur_time - start_t))
+    print("{}".format(msg), elapsed_time)
+    return cur_time
+
+
 def init_normal(shape, name=None):
     return initializations.normal(shape, scale=0.01, name=name)
 
@@ -202,7 +211,10 @@ if __name__ == '__main__':
     for epoch in xrange(num_epochs):
         t1 = time()
         # Generate training instances
+        start_t = time.time()
+        print("Obtaining train instances ...")
         user_input, item_input, labels, weights = get_train_instances(train, num_negatives, weight_negatives, user_weights)
+        start_t = _write_elapsed_time(start_t, "Train instanced obtained:")
 
         # Training
         hist = model.fit([np.array(user_input), np.array(item_input)], #input
