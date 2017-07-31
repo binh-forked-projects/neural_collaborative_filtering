@@ -15,10 +15,11 @@ from keras.optimizers import Adagrad, Adam, SGD, RMSprop
 from keras.regularizers import l2
 from Dataset import Dataset
 from evaluate import evaluate_model
-from time import time
+import time
 import multiprocessing as mp
 import sys
 import math
+from utils import _write_elapsed_time
 
 def init_normal(shape, name=None):
     return initializations.normal(shape, scale=0.01, name=name)
@@ -100,7 +101,7 @@ if __name__ == '__main__':
           %(learner, num_factors, batch_size, learning_rate, num_negatives, weight_negatives, regs, epochs, verbose))
 
     # Loading data
-    t1 = time()
+    t1 = time.time()
     dataset = Dataset("data/"+dataset_name)
     train, testRatings, testNegatives = dataset.trainMatrix, dataset.testRatings, dataset.testNegatives
     num_users, num_items = train.shape
@@ -109,7 +110,7 @@ if __name__ == '__main__':
     for u in xrange(num_users):
         user_weights.append(1)
     print("Load data done [%.1f s]. #user=%d, #item=%d, #train=%d, #test=%d"
-          %(time()-t1, num_users, num_items, train.nnz, len(testRatings)))
+          %(time.time()-t1, num_users, num_items, train.nnz, len(testRatings)))
 
     # Build model
     model = get_model(num_users, num_items, num_factors, regs)
@@ -135,7 +136,7 @@ if __name__ == '__main__':
     loss_pre = sys.float_info.max
     best_hr, best_ndcg = 0, 0
     for epoch in xrange(epochs):
-        t1 = time()
+        t1 = time.time()
         # Generate training instances
         user_input, item_input, labels, weights = get_train_instances(train, num_negatives, weight_negatives, user_weights)
 
@@ -143,7 +144,7 @@ if __name__ == '__main__':
         hist = model.fit([np.array(user_input), np.array(item_input)], #input
                          np.array(labels), # labels
                          batch_size=batch_size, nb_epoch=1, verbose=0, shuffle=True)
-        t2 = time()
+        t2 = time.time()
 
         # Evaluation
         if epoch %verbose == 0:
@@ -152,7 +153,7 @@ if __name__ == '__main__':
             mf_embedding_norm = np.linalg.norm(model.get_layer('user_embedding').get_weights())+np.linalg.norm(model.get_layer('item_embedding').get_weights())
             p_norm = np.linalg.norm(model.get_layer('prediction').get_weights()[0])
             print('Iteration %d [%.1f s]: HR = %.4f, NDCG = %.4f, loss = %.4f [%.1f s] MF_norm=%.1f, p_norm=%.2f'
-                  % (epoch,  t2 - t1, hr, ndcg, loss, time()-t2, mf_embedding_norm, p_norm))
+                  % (epoch,  t2 - t1, hr, ndcg, loss, time.time()-t2, mf_embedding_norm, p_norm))
             if hr > best_hr:
                 best_hr = hr
                 if hr > 0.6:

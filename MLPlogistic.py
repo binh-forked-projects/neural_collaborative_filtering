@@ -19,8 +19,9 @@ from keras.constraints import maxnorm
 from keras.optimizers import Adagrad, Adam, SGD, RMSprop
 from evaluate import evaluate_model
 from Dataset import Dataset
-from time import time
+import time
 import sys
+from utils import _write_elapsed_time
 
 def init_normal(shape, name=None):
     return initializations.normal(shape, scale=0.01, name=name)
@@ -107,7 +108,7 @@ if __name__ == '__main__':
           %(learner, layers, reg_layers, num_negatives, weight_negatives, learning_rate, epochs, batch_size, verbose))
 
     # Loading data
-    t1 = time()
+    t1 = time.time()
     dataset = Dataset("data/"+dataset_name)
     train, testRatings, testNegatives = dataset.trainMatrix, dataset.testRatings, dataset.testNegatives
     num_users, num_items = train.shape
@@ -117,7 +118,7 @@ if __name__ == '__main__':
         #user_weights.append(total_weight_per_user / float(train_csr.getrow(u).nnz))
         user_weights.append(1)
     print("Load data done [%.1f s]. #user=%d, #item=%d, #train=%d, #test=%d"
-          %(time()-t1, num_users, num_items, train.nnz, len(testRatings)))
+          %(time.time()-t1, num_users, num_items, train.nnz, len(testRatings)))
 
     # Build model
     model = get_model(num_users, num_items, layers, reg_layers)
@@ -139,7 +140,7 @@ if __name__ == '__main__':
     loss_pre = sys.float_info.max
     best_hr, best_ndcg = 0, 0
     for epoch in xrange(epochs):
-        t1 = time()
+        t1 = time.time()
         # Generate training instances
         user_input, item_input, labels, weights = get_train_instances(train, num_negatives, weight_negatives, user_weights)
 
@@ -147,14 +148,14 @@ if __name__ == '__main__':
         hist = model.fit([np.array(user_input), np.array(item_input)], #input
                          np.array(labels), # labels
                          batch_size=batch_size, nb_epoch=1, verbose=0, shuffle=True)
-        t2 = time()
+        t2 = time.time()
 
         # Evaluation
         if epoch %verbose == 0:
             (hits, ndcgs) = evaluate_model(model, testRatings, testNegatives, topK, evaluation_threads)
             hr, ndcg, loss = np.array(hits).mean(), np.array(ndcgs).mean(), hist.history['loss'][0]
             print('Iteration %d [%.1f s]: HR = %.4f, NDCG = %.4f, loss = %.4f [%.1f s]'
-                  % (epoch,  t2-t1, hr, ndcg, loss , time()-t2))
+                  % (epoch,  t2-t1, hr, ndcg, loss , time.time()-t2))
             if hr > best_hr:
                 best_hr = hr
                 if hr > 0.6:
