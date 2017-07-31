@@ -102,7 +102,8 @@ def get_train_instances(train, num_negatives, weight_negatives, user_weights):
     start_t = time.time()
     user_input, item_input, labels, weights = [],[],[],[]
     num_users = train.shape[0]
-    print("users:", num_users, "items:", num_items)
+    print("users:", num_users, "items:", num_items, "n_neg:", num_negatives)
+    print("type(train):", type(train), train.shape)
     for (u, i) in train.keys():
         # positive instance
         user_input.append(u)
@@ -207,7 +208,9 @@ if __name__ == '__main__':
     for epoch in xrange(num_epochs):
         t1 = time.time()
         # Generate training instances
-        user_input, item_input, labels, weights = get_train_instances(train, num_negatives, weight_negatives, user_weights)
+        user_input, item_input, labels, weights = get_train_instances(train, num_negatives,
+                                                                      weight_negatives,
+                                                                      user_weights)
 
         # Training
         hist = model.fit([np.array(user_input), np.array(item_input)], #input
